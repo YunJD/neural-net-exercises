@@ -1,6 +1,6 @@
 import numpy as np
 
-# Softmax only
+# Softmax output layer, logistic activation function for hidden layers
 class SimpleNN:
   EPS=0.0001 # Epsilon value fed into whatever random distribution to sample from
 
