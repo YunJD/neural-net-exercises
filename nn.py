@@ -1,4 +1,5 @@
 import numpy as np
+from sys import stdout as cout
 
 # Softmax output layer, logistic activation function for hidden layers
 class SimpleNN:
@@ -84,3 +85,27 @@ class SimpleNN:
       djdb = d_.sum(0)
 
     return -np.sum(np.log(a[-1]) * y) * inv_m + self.l * 0.5 * sum(np.sum(np.power(x,2)) for x in self.w)
+
+  def learn(self, n_steps, n_batch, alpha, training, labels, verbose=False):
+    rng = np.arange(len(labels))
+    start, end = 0, n_batch
+
+    for i in range(n_steps):
+      if start >= len(rng):
+        start, end = 0, n_batch
+        if n_batch < len(rng):
+          np.random.shuffle(rng)
+
+      cost = self.back_propagation(
+        training[rng[start:end]], labels[rng[start:end]],
+        0.4
+      )
+
+      if i % 50 == 0 and verbose:
+        print(str(round(cost, 2)) + ' ' * 5)
+        cout.write('Training...{0}%{1}\r'.format(100. * i / n_steps, ' ' * 5))
+
+      start, end = start + n_batch, end + n_batch
+
+    if verbose:
+      print('Training...done' + ' ' * 5)
