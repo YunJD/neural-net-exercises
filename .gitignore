@@ -8,3 +8,5 @@ train-images-idx3-ubyte.gz
 train-labels.idx1-ubyte
 train-labels-idx1-ubyte.gz
 *.jpg
+*.swp
+.ipynb_checkpoints
