@@ -14,14 +14,17 @@ training_images = MNISTImages("res/train-images.idx3-ubyte", True)
 training_images.split_validation_set()
 
 nn = SimpleNN([training_images.width * training_images.height, 140, 10], 2e-5)
-nn.learn(
-  50000,
-  100,
-  0.3,
-  training_images.get_images(),
-  training_labels.get_labels(),
-  True
-)
+try:
+  nn.optimize(
+    50000,
+    100,
+    0.3,
+    training_images.get_images(),
+    training_labels.get_labels(),
+    True
+  )
+except:
+  pass
 
 print('Validating')
 

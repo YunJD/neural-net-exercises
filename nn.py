@@ -12,7 +12,7 @@ class SimpleNN:
     self.l = decay # l for lambda
 
     self.w = [np.random.normal(0, self.EPS, [self.s[i], self.s[i + 1]]) for i in range(len(self.s) - 1)]
-    self.b = [np.random.normal(0, self.EPS, [self.s[i + 1]]) for i in range(len(self.s) - 1)]
+    self.b = [np.zeros([self.s[i + 1]]) for i in range(len(self.s) - 1)]
 
   def feed_forward(self, x, a = None, z = None):
     a_ = x
@@ -29,8 +29,8 @@ class SimpleNN:
 
     return a_
 
-  def back_propagation(self, x, y, alpha = 0.01):
-    a, z = [], []
+  def back_propagation(self, x, y, alpha = 0.01, p=None, b=None):
+    a, z, pj = [], [], 0.
     self.feed_forward(x, a, z)
 
     inv_m = 1. / len(x)
@@ -41,8 +41,18 @@ class SimpleNN:
     # Going backwards, skipping output layer
     for i in range(-2, -len(self.w) - 2, -1):
       if i > -len(self.w) - 1:
-        df = a[i] * (1. - a[i])
-        d_ = np.dot(d_, self.w[i + 1].T) * -df
+        #-a[i] * (1 - a[i]) = a[i] * (a[i] - 1)
+        df = a[i] * (a[i] - 1.)
+        d_ = np.dot(d_, self.w[i + 1].T)
+
+        if p is not None and b:
+          p_ = inv_m * a[i].sum(0)
+          p_a = (p / p_)
+          p_b = (1. - p) / (1. - p_)
+          d_ += b * (p_b - p_a)
+          pj += sum(p * np.log(p_a) + (1. - p) * np.log(p_b))
+
+        d_ = d_ * df
 
       self.w[i + 1] -= alpha * (inv_m * djdw + self.l * self.w[i + 1])
       self.b[i + 1] -= alpha * inv_m * djdb
@@ -50,9 +60,14 @@ class SimpleNN:
       djdw = np.dot(a[i - 1].T if i > -len(self.w) else x.T, d_)
       djdb = d_.sum(0)
 
-    return -np.sum(inv_m * (y * np.log(a[-1]) + (1. - y) * np.log(1. - a[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x in self.w)
+    cost = -np.sum(inv_m * (y * np.log(a[-1]) + (1. - y) * np.log(1. - a[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x in self.w)
 
-  def learn(self, n_steps, n_batch, alpha, training, labels, verbose=False):
+    if pj:
+      cost += pj
+
+    return cost
+
+  def optimize(self, n_steps, n_batch, alpha, training, labels, verbose=False, p=None, b=None):
     rng = np.arange(len(labels))
     start, end = 0, n_batch
 
@@ -64,7 +79,7 @@ class SimpleNN:
 
       cost = self.back_propagation(
         training[rng[start:end]], labels[rng[start:end]],
-        alpha
+        alpha, p, b
       )
 
       if i % 50 == 0 and verbose:
@@ -160,7 +175,7 @@ class SimpleSoftmaxNN:
 
     return -np.sum(np.log(a[-1]) * y) * inv_m + self.l * 0.5 * sum(np.sum(np.power(x,2)) for x in self.w)
 
-  def learn(self, n_steps, n_batch, alpha, training, labels, verbose=False):
+  def optimize(self, n_steps, n_batch, alpha, training, labels, verbose=False):
     rng = np.arange(len(labels))
     start, end = 0, n_batch
 
