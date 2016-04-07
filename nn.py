@@ -111,25 +111,17 @@ class SimpleSoftmaxNN:
     self.w.append(np.random.normal(0, self.EPS, [self.s[-1] if len(self.s) else self.n, self.k]))
     self.b.append(np.random.normal(0, self.EPS, [self.k]))
 
-  def feed_forward(self, x, a = None, z = None):
+  def feed_forward(self, x, a = None):
     a_ = x
 
     for i in range(len(self.w) - 1):
       a_ = np.dot(a_, self.w[i]) + self.b[i]
-
-      if z is not None:
-        z.append(a_)
-
       a_ = 1. / (1. + np.exp(a_))
 
       if a is not None:
         a.append(a_)
 
     a_ = np.dot(a_, self.w[-1]) + self.b[-1]
-
-    if z is not None:
-      z.append(a_)
-
     a_ = np.exp(a_)
     a_ = a_ / (a_.sum(-1, keepdims=True))
 
@@ -143,8 +135,8 @@ class SimpleSoftmaxNN:
     # y - output, single row vector or multiple row vectors
     # alpha - learning rate
 
-    a, z = [], []
-    self.feed_forward(x, a, z)
+    a = []
+    self.feed_forward(x, a)
 
     inv_m = 1. / len(x)
     d_ = (a[-1] - y)
