@@ -5,13 +5,13 @@ from sys import stdout as cout
 
 # Logistic neural net
 class SimpleNN:
-  EPS=0.0001 # Epsilon value fed into whatever random distribution to sample from
+  EPS=0.25 # Epsilon value fed into whatever random distribution to sample from
 
   def __init__(self, layers, decay = 0):
     self.s = layers #Input layer, hidden layers, and output layer sizes
     self.l = decay # l for lambda
 
-    self.w = [np.random.normal(0, self.EPS, [self.s[i], self.s[i + 1]]) for i in range(len(self.s) - 1)]
+    self.w = [np.random.uniform(-self.EPS, self.EPS, [self.s[i], self.s[i + 1]]) for i in range(len(self.s) - 1)]
     self.b = [np.zeros([self.s[i + 1]]) for i in range(len(self.s) - 1)]
 
   def feed_forward(self, x, a = None, z = None):
@@ -50,7 +50,7 @@ class SimpleNN:
           p_a = (p / p_)
           p_b = (1. - p) / (1. - p_)
           d_ += b * (p_b - p_a)
-          pj += sum(p * np.log(p_a) + (1. - p) * np.log(p_b))
+          pj += b * sum(p * np.log(p_a) + (1. - p) * np.log(p_b))
 
         d_ = d_ * df
 
