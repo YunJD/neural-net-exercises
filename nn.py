@@ -14,14 +14,11 @@ class SimpleNN:
     self.w = [np.random.uniform(-self.EPS, self.EPS, [self.s[i], self.s[i + 1]]) for i in range(len(self.s) - 1)]
     self.b = [np.zeros([self.s[i + 1]]) for i in range(len(self.s) - 1)]
 
-  def feed_forward(self, x, a = None, z = None):
+  def feed_forward(self, x, a = None, w = None, b = None):
+    w, b = w or self.w, b or self.b
     a_ = x
-    for i in range(len(self.w)):
-      a_ = np.dot(a_, self.w[i]) + self.b[i]
-
-      if z is not None:
-        z.append(a_)
-
+    for i in range(len(w)):
+      a_ = np.dot(a_, w[i]) + b[i]
       a_ = 1. / (1. + np.exp(a_))
 
       if a is not None:
@@ -30,8 +27,8 @@ class SimpleNN:
     return a_
 
   def back_propagation(self, x, y, alpha = 0.01, p=None, b=None):
-    a, z, pj = [], [], 0.
-    self.feed_forward(x, a, z)
+    a, pj = [], 0.
+    self.feed_forward(x, a)
 
     inv_m = 1. / len(x)
     d_ = (y - a[-1])
@@ -60,12 +57,7 @@ class SimpleNN:
       djdw = np.dot(a[i - 1].T if i > -len(self.w) else x.T, d_)
       djdb = d_.sum(0)
 
-    cost = -np.sum(inv_m * (y * np.log(a[-1]) + (1. - y) * np.log(1. - a[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x in self.w)
-
-    if pj:
-      cost += pj
-
-    return cost
+    return -np.sum(inv_m * (y * np.log(a[-1]) + (1. - y) * np.log(1. - a[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x in self.w) + pj
 
   def optimize(self, n_steps, n_batch, alpha, training, labels, verbose=False, p=None, b=None):
     rng = np.arange(len(labels))
