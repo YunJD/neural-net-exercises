@@ -5,17 +5,17 @@ from sys import stdout as cout
 
 # Logistic neural net
 class SimpleNN:
-  EPS=0.25 # Epsilon value fed into whatever random distribution to sample from
+  EPS=0.0001 # Epsilon value fed into whatever random distribution to sample from
 
   def __init__(self, layers, decay = 0):
     self.s = layers #Input layer, hidden layers, and output layer sizes
     self.l = decay # l for lambda
 
-    self.w = [np.random.uniform(-self.EPS, self.EPS, [self.s[i], self.s[i + 1]]) for i in range(len(self.s) - 1)]
+    self.w = [np.random.normal(0, self.EPS, [self.s[i], self.s[i + 1]]) for i in range(len(self.s) - 1)]
     self.b = [np.zeros([self.s[i + 1]]) for i in range(len(self.s) - 1)]
 
   def feed_forward(self, x, a = None, w = None, b = None):
-    w, b = w or self.w, b or self.b
+    w, b = w if w is not None else self.w, b if b is not None else self.b
     a_ = x
     for i in range(len(w)):
       a_ = np.dot(a_, w[i]) + b[i]
@@ -35,7 +35,29 @@ class SimpleNN:
     djdw = np.dot(a[-2].T if len(a) > 1 else x.T, d_)
     djdb = d_.sum(0)
 
-    # Going backwards, skipping output layer
+    #w_grad = [x.copy() for x in self.w]
+    #b_grad = [x.copy() for x in self.b]
+
+    #Gradient checking for one variable (sampling a small subset is easy to implement and less costly.  It is enough to verify.)
+    #grad_check_x = 0
+    #grad_check_y = 0
+    #w_l = [x.copy() for x in w_grad]
+    #w_u = [x.copy() for x in w_grad]
+    #w_l[-1][grad_check_x][grad_check_y] -= 1e-4
+    #w_u[-1][grad_check_x][grad_check_y] += 1e-4
+
+    #a_l, a_u = [], []
+    #self.feed_forward(x, a_l, w_l, b_grad)
+    #self.feed_forward(x, a_u, w_u, b_grad)
+
+    #grad_check = (
+    #  (-np.sum(inv_m * (y * np.log(a_u[-1]) + (1. - y) * np.log(1. - a_u[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x_ in w_u)) -
+    #  (-np.sum(inv_m * (y * np.log(a_l[-1]) + (1. - y) * np.log(1. - a_l[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x_ in w_l))
+    #) / 2e-4
+
+    #print('grad_check output:', (inv_m * djdw + self.l * self.w[-1])[grad_check_x][grad_check_y] - grad_check)
+
+    #Going backwards, skipping output layer
     for i in range(-2, -len(self.w) - 2, -1):
       if i > -len(self.w) - 1:
         #-a[i] * (1 - a[i]) = a[i] * (a[i] - 1)
@@ -47,15 +69,46 @@ class SimpleNN:
           p_a = (p / p_)
           p_b = (1. - p) / (1. - p_)
           d_ += b * (p_b - p_a)
-          pj += b * sum(p * np.log(p_a) + (1. - p) * np.log(p_b))
+          pj += b * np.sum(p * np.log(p_a) + (1. - p) * np.log(p_b))
 
-        d_ = d_ * df
+        d_ *= df
 
       self.w[i + 1] -= alpha * (inv_m * djdw + self.l * self.w[i + 1])
       self.b[i + 1] -= alpha * inv_m * djdb
 
       djdw = np.dot(a[i - 1].T if i > -len(self.w) else x.T, d_)
       djdb = d_.sum(0)
+
+      #if i > -len(self.w) - 1:
+      #  grad_check_x = 1
+      #  grad_check_y = 0
+      #  pj_l, pj_u = 0, 0
+      #  w_l = [x.copy() for x in w_grad]
+      #  w_u = [x.copy() for x in w_grad]
+      #  w_l[i][grad_check_x][grad_check_y] -= 1e-4
+      #  w_u[i][grad_check_x][grad_check_y] += 1e-4
+
+      #  a_l, a_u = [], []
+      #  self.feed_forward(x, a_l, w_l, b_grad)
+      #  self.feed_forward(x, a_u, w_u, b_grad)
+
+      #  if p is not None and b:
+      #    p_l_ = [inv_m * a_l[x].sum(0) for x in range(len(self.w) - 1)]
+      #    p_l_a = [p / x for x in p_l_]
+      #    p_l_b = [(1-p) / (1-x) for x in p_l_]
+      #    pj_l = np.sum([b * np.sum(p * np.log(p_l_a[x]) + (1. - p) * np.log(p_l_b[x])) for x in range(len(p_l_a))])
+
+      #    p_u_ = [inv_m * a_u[x].sum(0) for x in range(len(self.w) - 1)]
+      #    p_u_a = [p / x for x in p_u_]
+      #    p_u_b = [(1-p) / (1-x) for x in p_u_]
+      #    pj_u = np.sum([b * np.sum(p * np.log(p_u_a[x]) + (1. - p) * np.log(p_u_b[x])) for x in range(len(p_u_a))])
+
+      #  grad_check = (
+      #    (-np.sum(inv_m * (y * np.log(a_u[-1]) + (1. - y) * np.log(1. - a_u[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x in w_u) + pj_u) - \
+      #    (-np.sum(inv_m * (y * np.log(a_l[-1]) + (1. - y) * np.log(1. - a_l[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x in w_l) + pj_l)
+      #  ) / 2e-4
+      #  print('grad_check:', (inv_m * djdw + self.l * self.w[i])[grad_check_x][grad_check_y] - grad_check)
+
 
     return -np.sum(inv_m * (y * np.log(a[-1]) + (1. - y) * np.log(1. - a[-1]))) + self.l * 0.5 * sum(np.sum(np.power(x, 2.)) for x in self.w) + pj
 
