@@ -3,7 +3,7 @@
 #Applies a 3-layer neural net to the MNIST handwritten digits
 
 from mnist import *
-from nn import SimpleNN, SimpleSoftmaxNN
+from nn import SimpleSoftmaxNN
 import numpy as np
 from sys import stdout as cout
 
@@ -13,7 +13,7 @@ training_labels.split_validation_set()
 training_images = MNISTImages("res/train-images.idx3-ubyte", True)
 training_images.split_validation_set()
 
-nn = SimpleNN([training_images.width * training_images.height, 140, 10], 2e-5)
+nn = SimpleSoftmaxNN([training_images.width * training_images.height, 140, 10], 2e-5)
 try:
   nn.optimize(
     50000,
