@@ -5,19 +5,16 @@ import numpy as np
 
 __all__=('pil2ndarray', 'sample_patches', 'sample_mat_patches')
 
-# Return ndarray of (width, height) from PIL image
+#Return ndarray of (width, height) from PIL image
 def pil2ndarray(img):
-  # Must reshape flat array to correct size
+  #Must reshape flat array to correct size
   return np.array(img.getdata(), np.float32).reshape(img.size[0], img.size[1])
+
+def normalize(data, mean, std):
+  return 0.4 * (np.maximum(np.minimum(data - mean, std), -std) / std + 1) + 0.1
 
 def sample_patches(w, h, flat=True):
   imgs = np.array([pil2ndarray(Image.open('res/{0}.jpg'.format(x + 1)).convert('L')) for x in range(10)])
-
-  # Instead of applying normalization to the patches, apply it to the images
-  istd = 3 * imgs.std()
-  imean = imgs.mean()
-  imgs = np.maximum(np.minimum(imgs - imean, istd), -istd) / istd
-  imgs = (imgs + 1) * 0.4 + 0.1
 
   patches = []
   for i in range(10000):
@@ -25,17 +22,17 @@ def sample_patches(w, h, flat=True):
     patches.append(imgs[rnd.randint(0, len(imgs) - 1), b:b + h,a:a+w])
 
   patches = np.array(patches)
+  mean = patches.mean()
+  std = 3 * patches.std()
+
+  #Must normalize images using training set values
+  imgs = normalize(imgs, mean, std)
+  patches = normalize(patches, mean, std)
 
   return imgs, patches.reshape([10000, w * h]) if flat else patches
 
 def sample_mat_patches(w, h, flat=True):
   imgs = loadmat('res/IMAGES.mat', mat_dtype=True)['IMAGES'].swapaxes(2,1).swapaxes(1,0)
-
-  # Instead of applying normalization to the patches, apply it to the images
-  istd = 3 * imgs.std()
-  imean = imgs.mean()
-  imgs = np.maximum(np.minimum(imgs - imean, istd), -istd) / istd
-  imgs = (imgs + 1) * 0.4 + 0.1
 
   patches = []
   for i in range(10000):
@@ -44,5 +41,11 @@ def sample_mat_patches(w, h, flat=True):
     patches.append(patch)
 
   patches = np.array(patches)
+  mean = patches.mean()
+  std = 3 * patches.std()
+
+  #Must normalize images using training set values
+  imgs = normalize(imgs, mean, std)
+  patches = normalize(patches, mean, std)
 
   return imgs, patches.reshape([10000, w * h]) if flat else patches
