@@ -17,10 +17,10 @@ s2 = 5
 nn = SimpleSAE(
   layers=[patches.shape[1], s2 * s2, patches.shape[1]],
   decay=1e-4,
-  sparsity=0.12,
-  sparsity_penalty=10
+  sparsity=0.15,
+  sparsity_penalty=30
 )
-nn.optimize(patches, patches, 600)
+nn.optimize(patches, patches, 10000)
 
 img_patches = []
 for y in range(0, img.shape[0], p_h):

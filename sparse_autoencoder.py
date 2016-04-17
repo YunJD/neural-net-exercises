@@ -103,6 +103,7 @@ class SimpleSAE:
 
     info['i'] += 1
 
+    #Appends are generally faster, and must be reversed here, but it hasn't really been benchmarked
     djdw.reverse()
     djdb.reverse()
     return cost, self.flatten_weights(djdw, djdb)

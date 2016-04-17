@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 p_w = 8
 p_h = 8
 imgs, patches = sample_mat_patches(p_w, p_h, True)
-img = imgs[2]
+img = imgs[0]
 
 s2 = 5
 nn = SimpleSAE(
@@ -47,7 +47,7 @@ comp_img = np.append(img, reconstruct_img, axis=-1)
 plt.imshow(comp_img, cmap='Greys_r', interpolation='nearest')
 plt.show()
 
-#TODO: create a unpatchify function
+#TODO: create an unpatchify function
 #Transpose because column matrices are used for the weights
 hidden_w = nn.w[0].T
 #Matrix notation reverses height vs width
