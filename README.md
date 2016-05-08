@@ -5,6 +5,7 @@ Solutions to select exercises from Stanford's Unsupervised Feature Learning and 
 
 ## UfLDL Tutorial Sites
 http://deeplearning.stanford.edu/tutorial/ (Newer)
+
 http://deeplearning.stanford.edu/wiki/index.php/UFLDL_Tutorial (Older)
 
 Unfortuantely the *newer* site seems privy to errors, so some solutions follow the *older* site's exercises.
