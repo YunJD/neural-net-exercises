@@ -51,17 +51,16 @@ plt.show()
 #Transpose because column matrices are used for the weights
 hidden_w = nn.w[0].T
 #Matrix notation reverses height vs width
-min_w = np.min(hidden_w, axis=1, keepdims=True)
-max_w = np.max(hidden_w, axis=1, keepdims=True)
 
 figure, axes = plt.subplots(nrows = s2, ncols = s2)
 index = 0
-                                          
+
 for axis in axes.flat:
   image = axis.imshow(nn.w[0].T[index].reshape(p_w, p_h),
-                      cmap = plt.cm.gray, interpolation = 'nearest')
+    cmap = plt.cm.gray, interpolation = 'nearest'
+  )
   axis.set_frame_on(False)
   axis.set_axis_off()
   index += 1
-    
+
 plt.show()

@@ -1,26 +1,27 @@
 Neural Net Exercises
 ==============
 
-Programming exercises for the Stanford Unsupervised Feature Learning and Deep Learning Tutorial written in python, using numpy and Tensorflow.
+Solutions to select exercises from Stanford's Unsupervised Feature Learning and Deep Learning (UFLDL) Tutorial (starting with neural networks). Written in Python using Numpy, SciPy, and Tensorflow.
 
-This repository contains solutions to exercises found in http://deeplearning.stanford.edu/tutorial/
+## UfLDL Tutorial Sites
+http://deeplearning.stanford.edu/tutorial/ (Newer)
+http://deeplearning.stanford.edu/wiki/index.php/UFLDL_Tutorial (Older)
 
-MNIST training files required under the `./res/` directory.
+Unfortuantely the *newer* site seems privy to errors, so some solutions follow the *older* site's exercises.
 
+MNIST training files are required under the `./res/` directory.
+
+## Requirements
+Everything is implemented for Python3. The main modules should be in the requirements file.  However:
+
+SciPy requires a fortan compiler.  Best way I found for Linux Mint was to `sudo apt-get install gfortran` before installing SciPy.
+
+Tensorflow requires some steps found in [Tensorflow's main page](https://www.tensorflow.org/versions/r0.8/get_started/os_setup.html#pip-installation). If you are on say, Arch Linux and have Python3.5, just rename the 34 parts in the instructions to 35 :).
+
+Resources
 ==============
 
 MNIST training files can be downloaded from:
 http://yann.lecun.com/exdb/mnist/
 
-Sparse autoencoder images can be downloaded from the following sites (Though any 512x512 picture labeled 1 - 10 should suffice):
-
-[1.jpg](https://pbs.twimg.com/profile_images/466608337262350336/Ybpv3YAt.jpeg)
-[2.jpg](https://lh6.googleusercontent.com/-5DiUpSHgxPQ/AAAAAAAAAAI/AAAAAAAAABI/4xtJe00gKBU/photo.jpg)
-[3.jpg](https://lh5.ggpht.com/jp3jdF6Bo_Sht_lFLl8saK4-0qZRGexn0tnzzhI3YIeiQP-8L9ho7ttECJjAkFT71w)
-[4.jpg](https://pbs.twimg.com/profile_images/623942821976875008/ng3pjGkz.jpg)
-[5.jpg](https://lh3.ggpht.com/oi7SsuZwIanS70lTV-C9YHFnQikH8O_aUmWM7QsZZdSjwQUHT-OvrTaE1C9iMTEb8kA=h900)
-[6.jpg](https://pbs.twimg.com/profile_images/688042833752801280/q4yKTVaq.jpg)
-[7.jpg](https://pbs.twimg.com/profile_images/656794344012324864/q5hDSQtR.jpg)
-[8.jpg](http://catfacts.jazzychad.net/img/cat.jpg)
-[9.jpg](https://pbs.twimg.com/profile_images/685161748224208898/PNLWqhOZ.jpg)
-[10.jpg](https://www.cmc.edu/sites/default/files/news/2013/05/lena.jpg)
+Various .mat files found in the /res folder were downloaded from the *older* site.

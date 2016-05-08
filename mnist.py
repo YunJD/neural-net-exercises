@@ -1,7 +1,7 @@
 import numpy as np
 import struct
 
-__all__ = ['MNISTImages', 'MNISTLabels']
+__all__ = ['MNISTImages', 'MNISTLabels', 'read_images', 'read_labels']
 
 def read_labels(filepath, one_hot=False):
   with open(filepath, 'rb') as f:
