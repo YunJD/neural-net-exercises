@@ -10,8 +10,6 @@ http://deeplearning.stanford.edu/wiki/index.php/UFLDL_Tutorial (Older)
 
 Unfortuantely the *newer* site seems privy to errors, so some solutions follow the *older* site's exercises.
 
-MNIST training files are required under the `./res/` directory.
-
 ## Requirements
 Everything is implemented for Python3. The main modules should be in the requirements file.  However:
 
@@ -22,7 +20,7 @@ Tensorflow requires some steps found in [Tensorflow's main page](https://www.ten
 Resources
 ==============
 
-MNIST training files can be downloaded from:
+MNIST training files are required under the `./res/` directory.  They can be downloaded from:
 http://yann.lecun.com/exdb/mnist/
 
 Various .mat files found in the /res folder were downloaded from the *older* site.
