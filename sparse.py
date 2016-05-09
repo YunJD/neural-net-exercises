@@ -1,14 +1,12 @@
 from scipy.io import loadmat
 from PIL import Image
+from gbl import pil2ndarray
+
 import random as rnd
 import numpy as np
 
-__all__=('pil2ndarray', 'sample_patches', 'sample_mat_patches')
-
-#Return ndarray of (width, height) from PIL image
-def pil2ndarray(img):
-  #Must reshape flat array to correct size
-  return np.array(img.getdata(), np.float32).reshape(img.size[0], img.size[1])
+#Sampling mainly for the sparse autoencoder exercise.
+__all__=('sample_patches', 'sample_mat_patches')
 
 def normalize(data, mean, std):
   return 0.4 * (np.maximum(np.minimum(data - mean, std), -std) / std + 1) + 0.1

@@ -1,7 +1,7 @@
 Neural Net Exercises
 ==============
 
-Solutions to select exercises from Stanford's Unsupervised Feature Learning and Deep Learning (UFLDL) Tutorial (starting with neural networks). Written in Python using Numpy, SciPy, and Tensorflow.
+Solutions to select exercises from Stanford's Unsupervised Feature Learning and Deep Learning (UFLDL) Tutorial, starting with neural networks. Written in Python using Numpy, SciPy, and Tensorflow.
 
 ## UfLDL Tutorial Sites
 http://deeplearning.stanford.edu/tutorial/ (Newer)
