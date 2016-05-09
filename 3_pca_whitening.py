@@ -55,6 +55,7 @@ pca_99 = np.dot(pca_99, U.T)
 
 rot_white = rot / np.sqrt(u)
 rot_white_reg = rot / (np.sqrt(u + 0.1))
+
 plt.imshow(np.dot(rot_white.T, rot_white) / 10000, interpolation='NEAREST')
 plt.show()
 plt.imshow(np.dot(rot_white_reg.T, rot_white_reg) / 10000, interpolation='NEAREST')
