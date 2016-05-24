@@ -31,9 +31,15 @@ def show_tiles(tiles, nrows, ncols, **plot_kwargs):
   #This is waaaaay faster than subplot! Basically create the dimensions of one 
   #large image that has enough resolution to show tiles given # of rows and # of 
   #columns
+
+  # Generalize to include a 'channel' dimension
+  if len(tiles.shape) == 3:
+    tiles = tiles.reshape(tiles.shape + (1,))
+
   tiled_image = np.ndarray([
       nrows * (tiles.shape[1] + TILE_BORDER_SIZE) - TILE_BORDER_SIZE, #Last row/column doesn't need a border
-      ncols * (tiles.shape[2] + TILE_BORDER_SIZE) - TILE_BORDER_SIZE
+      ncols * (tiles.shape[2] + TILE_BORDER_SIZE) - TILE_BORDER_SIZE,
+      tiles.shape[3]
   ])
   tiled_image.fill(plot_kwargs.get('vmin', np.min(tiles)))
 
@@ -47,9 +53,9 @@ def show_tiles(tiles, nrows, ncols, **plot_kwargs):
       y_offset = y * (tiles.shape[1] + TILE_BORDER_SIZE)
       x_offset = x * (tiles.shape[2] + TILE_BORDER_SIZE)
 
-      tiled_image[y_offset:y_offset + tiles.shape[1], x_offset:x_offset + tiles.shape[2]] = tile
+      tiled_image[y_offset:y_offset + tiles.shape[1], x_offset:x_offset + tiles.shape[2],:] = tile
 
-  plt.imshow(tiled_image, **plot_kwargs)
+  plt.imshow(tiled_image.squeeze(), **plot_kwargs)
   plt.show()
 
 def sample_random_patches(imgs, n, w, h):

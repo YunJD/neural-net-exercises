@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import gbl
 
+patch_size = 40
+
 imgs = loadmat('res/IMAGES_RAW.mat', mat_dtype=True)['IMAGESr']
 #We use row-vectors rather than column-vectors, which maps directly to matplotlib
 imgs = imgs.swapaxes(0, 2).swapaxes(1, 2)
@@ -13,14 +15,14 @@ imgs = imgs.swapaxes(0, 2).swapaxes(1, 2)
 #Show the images
 gbl.show_tiles(imgs, 3, 4, cmap="Greys_r", interpolation='NEAREST', vmin=-1, vmax=1)
 
-patches = gbl.sample_random_patches(imgs, 10000, 12, 12)
+patches = gbl.sample_random_patches(imgs, 10000, patch_size, patch_size)
 
-patches = patches.reshape([10000, 144])
-patches = patches - patches.mean(0, keepdims=True)
+patches = patches.reshape([10000, patch_size * patch_size])
+patches = patches - patches.mean(1, keepdims=True)
 
 random_patches = np.random.randint(0, patches.shape[0], 100)
 #Show 25 random patches
-gbl.show_tiles(patches.reshape([10000, 12, 12])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.show_tiles(patches.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
 
 #Compute the cov matrix and xrot.
 cov = np.dot(patches.T, patches) / 10000
@@ -61,8 +63,8 @@ plt.show()
 plt.imshow(np.dot(rot_white_reg.T, rot_white_reg) / 10000, interpolation='NEAREST')
 plt.show()
 
-gbl.show_tiles(pca_90.reshape([10000, 12, 12])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
-gbl.show_tiles(pca_99.reshape([10000, 12, 12])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.show_tiles(pca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.show_tiles(pca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
 
 rot_white_reg_pca_90 = rot_white_reg.copy()
 rot_white_reg_pca_99 = rot_white_reg.copy()
@@ -71,5 +73,5 @@ rot_white_reg_pca_99[:,idx[0:idx_99 + 1]] = 0.
 rot_white_reg_zca_90 = np.dot(rot_white_reg_pca_90, U.T)
 rot_white_reg_zca_99 = np.dot(rot_white_reg_pca_99, U.T)
 
-gbl.show_tiles(rot_white_reg_zca_90.reshape([10000, 12, 12])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
-gbl.show_tiles(rot_white_reg_zca_99.reshape([10000, 12, 12])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.show_tiles(rot_white_reg_zca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.show_tiles(rot_white_reg_zca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)

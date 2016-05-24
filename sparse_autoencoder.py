@@ -4,11 +4,12 @@ from sys import stdout as cout
 
 # Logistic neural net with support for sparse autoencoding
 class SimpleSAE:
-  def __init__(self, layers, decay = 0, sparsity = 0, sparsity_penalty = 0):
+  def __init__(self, layers, decay = 0, sparsity = 0, sparsity_penalty = 0, linear_decoder=False):
     self.s = layers.copy() #Input layer, hidden layers, and output layer sizes
     self.l = decay # l for lambda
     self.p = sparsity
     self.pb = sparsity_penalty
+    self.linear_decoder = linear_decoder
 
   def flatten_weights(self, w, b):
     return np.concatenate([w_.flatten() for w_ in w] + [b_.flatten() for b_ in b])
@@ -60,7 +61,9 @@ class SimpleSAE:
     a_ = x
     for i in range(len(w)):
       a_ = np.dot(a_, w[i]) + b[i]
-      a_ = 1 / (1 + np.exp(-a_))
+
+      if i < len(w) - 1 or not self.linear_decoder:
+        a_ = 1 / (1 + np.exp(-a_))
 
       if a is not None:
         a.append(a_)
@@ -77,7 +80,8 @@ class SimpleSAE:
 
     inv_m = 1 / x.shape[0]
     diff = (a[-1] - y)
-    d_ = diff * (a[-1] * (1 - a[-1]))
+
+    d_ = diff if self.linear_decoder else diff * (a[-1] * (1 - a[-1]))
     djdw = [inv_m * np.dot(a[-2].T if len(a) > 1 else x.T, d_) + self.l * w[-1]]
     djdb = [inv_m * d_.sum(0)]
 
