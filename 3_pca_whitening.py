@@ -3,17 +3,25 @@
 from mnist import *
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 import gbl
 
-patch_size = 40
+plt.axis('off')
+
+patch_size = 50
 
 imgs = loadmat('res/IMAGES_RAW.mat', mat_dtype=True)['IMAGESr']
 #We use row-vectors rather than column-vectors, which maps directly to matplotlib
 imgs = imgs.swapaxes(0, 2).swapaxes(1, 2)
 
 #Show the images
-gbl.show_tiles(imgs, 3, 4, cmap="Greys_r", interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.plot_image(
+  gbl.get_tile_image(imgs, 3, 4),
+  filename='images/3 PCA/1 - Raw Natural Images.png',
+  cmap=cm.gray,
+  interpolation='NEAREST'
+)
 
 patches = gbl.sample_random_patches(imgs, 10000, patch_size, patch_size)
 
@@ -22,16 +30,22 @@ patches = patches - patches.mean(1, keepdims=True)
 
 random_patches = np.random.randint(0, patches.shape[0], 100)
 #Show 25 random patches
-gbl.show_tiles(patches.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+
+gbl.plot_image(
+  gbl.get_tile_image(patches.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
+  filename='images/3 PCA/2 - Randomly Sampled Patches.png',
+  cmap=cm.gray,
+  interpolation='NEAREST'
+)
 
 #Compute the cov matrix and xrot.
 cov = np.dot(patches.T, patches) / 10000
 u, U = np.linalg.eig(cov)
 rot = np.dot(patches, U)
 
-#Display the cov matrix of xrot
+#Save the cov matrix of xrot
 plt.imshow((np.dot(rot.T, rot) / 10000), interpolation='NEAREST')
-plt.show()
+plt.savefig('images/3 PCA/3 - Covariance Matrix.svg', bbox_inches='tight')
 #This sorts from smallest to largest
 idx = u.argsort()
 
@@ -59,12 +73,23 @@ rot_white = rot / np.sqrt(u)
 rot_white_reg = rot / (np.sqrt(u + 0.1))
 
 plt.imshow(np.dot(rot_white.T, rot_white) / 10000, interpolation='NEAREST')
-plt.show()
+plt.savefig('images/3 PCA/4 - Covariance Matrix Whitened.svg', bbox_inches='tight')
 plt.imshow(np.dot(rot_white_reg.T, rot_white_reg) / 10000, interpolation='NEAREST')
-plt.show()
+plt.savefig('images/3 PCA/5 - Covariance Matrix Whitened Regularized.svg', bbox_inches='tight')
 
-gbl.show_tiles(pca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
-gbl.show_tiles(pca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.plot_image(
+  gbl.get_tile_image(pca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
+  filename='images/3 PCA/6 - PCA 90 Variance.png',
+  cmap=cm.gray,
+  interpolation='NEAREST'
+)
+
+gbl.plot_image(
+  gbl.get_tile_image(pca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
+  filename='images/3 PCA/7 - PCA 99 Variance.png',
+  cmap=cm.gray,
+  interpolation='NEAREST'
+)
 
 rot_white_reg_pca_90 = rot_white_reg.copy()
 rot_white_reg_pca_99 = rot_white_reg.copy()
@@ -73,5 +98,16 @@ rot_white_reg_pca_99[:,idx[0:idx_99 + 1]] = 0.
 rot_white_reg_zca_90 = np.dot(rot_white_reg_pca_90, U.T)
 rot_white_reg_zca_99 = np.dot(rot_white_reg_pca_99, U.T)
 
-gbl.show_tiles(rot_white_reg_zca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
-gbl.show_tiles(rot_white_reg_zca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10, cmap='Greys_r', interpolation='NEAREST', vmin=-1, vmax=1)
+gbl.plot_image(
+  gbl.get_tile_image(rot_white_reg_zca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
+  filename='images/3 PCA/8 - ZCA 90 Variance.png',
+  cmap=cm.gray,
+  interpolation='NEAREST'
+)
+
+gbl.plot_image(
+  gbl.get_tile_image(rot_white_reg_zca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
+  filename='images/3 PCA/9 - ZCA 99 Variance.png',
+  cmap=cm.gray,
+  interpolation='NEAREST'
+)

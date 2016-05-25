@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
 __all__ = ['show_tiles']
 
 '''Image loading/display helper functions'''
@@ -15,18 +16,27 @@ def pil2ndarray(img):
   #Must reshape flat array to correct size
   return np.array(img.getdata(), np.float32).reshape(img.size[0], img.size[1])
 
-def show_tiles(tiles, nrows, ncols, **plot_kwargs):
-  '''Displays tiles over nrows rows and ncols columns.  plot_kwargs are identical to 
-  matplotlib.pyplot.imshow kwargs.
+def plot_image(img, filename=None, show=True, **plot_kwargs):
+  if show:
+    plt.imshow(img, **plot_kwargs)
+    plt.axis('off')
+    plt.show()
+
+  if filename:
+    Image.fromarray((img * 255).astype(np.uint8))\
+      .save(filename)
+  
+def get_tile_image(tiles, nrows, ncols, normalize=True):
+  '''Displays tiles over nrows rows and ncols columns.
 
   Args:
+    normalize (bool, True): Normalize to be between [0, 1]
     tiles (numpy.ndarray): 3-dimensional array of image tiles (image #, tile width, tile height).
     nrows (int): Number of rows of the overall tile grid
     ncols (int): Number of columns of the overall tile grid
-    **plot_kwargs: **kwargs for matplotlib.pyplot.imshow
   '''
 
-  TILE_BORDER_SIZE = 2
+  TILE_BORDER_SIZE = 1
 
   #This is waaaaay faster than subplot! Basically create the dimensions of one 
   #large image that has enough resolution to show tiles given # of rows and # of 
@@ -36,12 +46,20 @@ def show_tiles(tiles, nrows, ncols, **plot_kwargs):
   if len(tiles.shape) == 3:
     tiles = tiles.reshape(tiles.shape + (1,))
 
-  tiled_image = np.ndarray([
+
+  if normalize:
+    tiles -= tiles.mean()
+
+    for j in range(tiles.shape[0]):
+      for i in range(tiles.shape[-1]):
+        t_max = np.abs(tiles[j,:,:,i]).max()
+        tiles[j,:,:,i] = ((tiles[j,:,:,i] / t_max) + 1) / 2
+
+  tiled_image = np.zeros([
       nrows * (tiles.shape[1] + TILE_BORDER_SIZE) - TILE_BORDER_SIZE, #Last row/column doesn't need a border
       ncols * (tiles.shape[2] + TILE_BORDER_SIZE) - TILE_BORDER_SIZE,
       tiles.shape[3]
   ])
-  tiled_image.fill(plot_kwargs.get('vmin', np.min(tiles)))
 
   for y in range(nrows):
     for x in range(ncols):
@@ -55,8 +73,7 @@ def show_tiles(tiles, nrows, ncols, **plot_kwargs):
 
       tiled_image[y_offset:y_offset + tiles.shape[1], x_offset:x_offset + tiles.shape[2],:] = tile
 
-  plt.imshow(tiled_image.squeeze(), **plot_kwargs)
-  plt.show()
+  return tiled_image.squeeze()
 
 def sample_random_patches(imgs, n, w, h):
   '''Given a series of images, samples n patches of width w and height h.
