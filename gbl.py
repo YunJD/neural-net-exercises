@@ -11,12 +11,23 @@ def pil2ndarray(img):
 
   Args:
     img (PIL.Image): Image loaded by PIL.Image.open()
+
+  Returns:
+    (numpy array): A numpy array with intensity values taken from the PIL image
   '''
 
   #Must reshape flat array to correct size
   return np.array(img.getdata(), np.float32).reshape(img.size[0], img.size[1])
 
 def plot_image(img, filename=None, show=True, **plot_kwargs):
+  '''Quickly plot/save an image from a numpy array.
+    
+    Args:
+      img (np.array): Image intensity values, which can include channels.
+      filename (string, None): Optionally save the image to specified file.
+      show (bool, True): Show the image using matplotlib.
+      **plot_kwargs: Identical to matplotlib's imshow().
+  '''
   if show:
     plt.imshow(img, **plot_kwargs)
     plt.axis('off')
@@ -27,13 +38,19 @@ def plot_image(img, filename=None, show=True, **plot_kwargs):
       .save(filename)
   
 def get_tile_image(tiles, nrows, ncols, normalize=True):
-  '''Displays tiles over nrows rows and ncols columns.
+  '''Constructs tile image.
+
+  Creates a 2D array that arranges tiles over nrows and ncols, as a single 
+  image. The result can be fed into matplotlib's .imshow() function.
 
   Args:
-    normalize (bool, True): Normalize to be between [0, 1]
-    tiles (numpy.ndarray): 3-dimensional array of image tiles (image #, tile width, tile height).
-    nrows (int): Number of rows of the overall tile grid
-    ncols (int): Number of columns of the overall tile grid
+    normalize (bool, True): Normalize to be between [0, 1].
+    tiles (numpy.ndarray): 3-dimensional array of image tiles (image #, tile height, tile width).
+    nrows (int): Number of rows of the overall tile grid.
+    ncols (int): Number of columns of the overall tile grid.
+
+  Returns:
+    (np.array): A numpy array containing intensity values of the tiled image.
   '''
 
   TILE_BORDER_SIZE = 1
@@ -79,13 +96,13 @@ def sample_random_patches(imgs, n, w, h):
   '''Given a series of images, samples n patches of width w and height h.
 
   Args:
-    imgs (numpy.ndarray): 3-dimensional array of image tiles (image #, tile width, tile height)
-    n (int): Number of patches to sample
-    w (int): Width of the sample patch
-    h (int): Height of the sample patch
+    imgs (numpy.ndarray): 3-dimensional array of image tiles (image #, tile width, tile height).
+    n (int): Number of patches to sample.
+    w (int): Width of the sample patch.
+    h (int): Height of the sample patch.
 
   Returns:
-    numpy.ndarray: 3-dimensional array of sampled patches (image #, patch width, patch height)
+    (numpy.array): 3-dimensional array of sampled patches (image #, patch height, patch width).
   '''
 
   patches = np.zeros([n, w, h])

@@ -3,7 +3,7 @@
 #Applies a 3-layer sparse autoencoder to a randomized set of image patches
 
 from sparse import *
-from sparse_autoencoder import SimpleSAE
+from sparse_autoencoder_scipy import SimpleSAE
 import numpy as np
 from sys import stdout as cout
 import matplotlib.pyplot as plt
