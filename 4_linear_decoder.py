@@ -22,7 +22,7 @@ def main(_):
     # Tensorflow model
     train_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, 192))
     layers, weights = sa.autoencoder(train_placeholder, [FLAGS.hidden])
-    weights_op = weights[0] * 1.
+    weights_op = weights[0]
 
     # Tensorflow Loss function
     loss, reg_loss, sparsity_loss = sa.loss(layers, weights, train_placeholder, FLAGS.decay, FLAGS.sparse_param, FLAGS.sparse_pen)
