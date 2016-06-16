@@ -8,7 +8,7 @@ http://deeplearning.stanford.edu/tutorial/ (Newer)
 
 http://deeplearning.stanford.edu/wiki/index.php/UFLDL_Tutorial (Older)
 
-Unfortuantely the *newer* site seems privy to errors, so some solutions follow the *older* site's exercises.
+Unfortuantely the *newer* site seems privy to errors, so solutions follow the *older* site's exercises.
 
 ## Requirements
 Everything is implemented for Python3. The main modules should be in the requirements file.  However:

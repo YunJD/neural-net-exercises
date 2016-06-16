@@ -7,7 +7,7 @@ __all__ = ['show_tiles']
 
 #Return ndarray of (width, height) from PIL image
 def pil2ndarray(img):
-  '''Given an image loaded by pillow, returns an ndarray of intensity values.
+  '''Given an image loaded by Pillow, returns an ndarray of intensity values.
 
   Args:
     img (PIL.Image): Image loaded by PIL.Image.open()
