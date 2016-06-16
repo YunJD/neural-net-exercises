@@ -3,7 +3,7 @@
 #Applies a 3-layer neural net to the MNIST handwritten digits
 
 from mnist import *
-from nn import SimpleSoftmaxNN
+from nn_scipy import SimpleSoftmaxNN
 import numpy as np
 from sys import stdout as cout
 
