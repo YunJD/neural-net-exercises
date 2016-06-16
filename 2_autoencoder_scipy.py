@@ -28,20 +28,11 @@ nn = SimpleSAE(
 )
 nn.optimize(patches, patches, 400)
 
-#TODO: create an unpatchify function
 #Transpose because column matrices are used for the weights
 hidden_w = nn.w[0].T
-#Matrix notation reverses height vs width
 
-figure, axes = plt.subplots(nrows = s2, ncols = s2)
-index = 0
-
-for axis in axes.flat:
-  image = axis.imshow(nn.w[0].T[index].reshape(p_w, p_h),
-    cmap = plt.cm.gray, interpolation = 'nearest'
-  )
-  axis.set_frame_on(False)
-  axis.set_axis_off()
-  index += 1
-
-plt.show()
+gbl.plot_image(
+  gbl.get_tile_image(hidden_w.reshape(s2 * s2, p_w, p_h), s2, s2),
+  filename="images/2 Sparse Autoencoder/filters.png",
+  cmap="Greys_r"
+)
