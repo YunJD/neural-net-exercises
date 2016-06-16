@@ -6,6 +6,7 @@ import numpy as np
 import gbl
 import tensorflow as tf
 from datetime import datetime
+import time
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -69,7 +70,9 @@ def main(_):
     rng = np.arange(zca_patches.shape[0])
     start, end = 0, FLAGS.batch_size
 
+
     print(datetime.now(), "Begin training...")
+    start_time = time.time()
     for step in range(FLAGS.max_steps):
       _, loss_value = sess.run([train_op, loss], feed_dict={
         train_placeholder: zca_patches[rng[start:end]]
@@ -83,7 +86,7 @@ def main(_):
         np.random.shuffle(rng)
 
       if step % 50 == 0:
-        print('Steps', step, 'Loss', loss_value)
+        print('Steps', step, 'Loss', loss_value, 'Elapsed', time.time() - start_time)
 
         w_ = sess.run(weights_op).T.reshape(FLAGS.hidden, 8, 8, 3)
         gbl.plot_image(
@@ -93,7 +96,7 @@ def main(_):
           interpolation='NEAREST'
         )
 
-    print(datetime.now(), "Training complete!")
+    print(datetime.now(), "Training complete! Elapsed:", time.time() - start_time)
 
     w_ = sess.run(weights_op).T.reshape(FLAGS.hidden, 8, 8, 3)
     gbl.plot_image(
