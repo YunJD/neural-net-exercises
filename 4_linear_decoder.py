@@ -6,6 +6,7 @@ import numpy as np
 import gbl
 import tensorflow as tf
 from datetime import datetime
+from stochastic import StochasticGradientDescentState
 import time
 
 flags = tf.app.flags
@@ -47,6 +48,8 @@ def main(_):
     interpolation='NEAREST'
   )
 
+  desc_state = StochasticGradientDescentState(len(zca_patches), FLAGS.batch_size)
+
   with tf.Graph().as_default():
     # Tensorflow model
     train_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, 192)) # 192 = 8 * 8 * 3
@@ -75,15 +78,8 @@ def main(_):
     start_time = time.time()
     for step in range(FLAGS.max_steps):
       _, loss_value = sess.run([train_op, loss], feed_dict={
-        train_placeholder: zca_patches[rng[start:end]]
+        train_placeholder: desc_state.get_next_batch(zca_patches)
       })
-
-      start += FLAGS.batch_size
-      end += FLAGS.batch_size
-
-      if start >= len(zca_patches):
-        start, end = 0, FLAGS.batch_size
-        np.random.shuffle(rng)
 
       if step % 50 == 0:
         print('Steps', step, 'Loss', loss_value, 'Elapsed', time.time() - start_time)
