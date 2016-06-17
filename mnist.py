@@ -12,7 +12,7 @@ def read_labels(filepath, one_hot=False):
     if one_hot:
       labels = np.eye(10, dtype=np.float32)[np.fromfile(f, np.uint8)]
     else:
-      labels = np.fromfile(f, np.uint8).astype(np.float32)
+      labels = np.fromfile(f, np.uint8)
 
   return n, labels
 

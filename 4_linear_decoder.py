@@ -19,9 +19,37 @@ flags.DEFINE_integer('hidden', 400, 'Number of hidden units.')
 flags.DEFINE_integer('batch_size', 1000, 'Batch size for stochastic gradient descent.')
 
 def main(_):
+  # Data loading and processing
+  # Flip axes because UFLDL loads in column vectors
+  patches = loadmat('res/stlSampledPatches.mat', mat_dtype=True)['patches']\
+    .reshape([3, 8, 8, 100000])\
+    .swapaxes(0, -1).swapaxes(1, 2)
+
+  gbl.plot_image(
+    gbl.get_tile_image(patches[0:900], 30, 30, normalize=False),
+    show=False,
+    filename='images/4 Linear Decoder/stl patches.png',
+    interpolation='NEAREST'
+  )
+
+  patches = patches.reshape([100000, 192])
+  patches -= patches.mean(0)
+
+  # ZCA whitening
+  u, U = np.linalg.eig(np.dot(patches.T, patches) / patches.shape[0])
+  zca_whiten = np.dot(U / np.sqrt(u + FLAGS.zca_reg), U.T)
+  zca_patches = np.dot(patches, zca_whiten)
+
+  gbl.plot_image(
+    gbl.get_tile_image(zca_patches[0:900].reshape([900, 8, 8, 3]), 30, 30),
+    show=False,
+    filename='images/4 Linear Decoder/stl zca whitened patches.png',
+    interpolation='NEAREST'
+  )
+
   with tf.Graph().as_default():
     # Tensorflow model
-    train_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, 192))
+    train_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, 192)) # 192 = 8 * 8 * 3
     layers, weights = sa.autoencoder(train_placeholder, [FLAGS.hidden])
     weights_op = weights[0]
 
@@ -38,34 +66,6 @@ def main(_):
     sess = tf.Session()
 
     sess.run(init)
-
-    # Data loading and processing
-    # Flip axes because UFLDL loads in column vectors
-    patches = loadmat('res/stlSampledPatches.mat', mat_dtype=True)['patches']\
-      .reshape([3, 8, 8, 100000])\
-      .swapaxes(0, -1).swapaxes(1, 2)
-
-    gbl.plot_image(
-      gbl.get_tile_image(patches[0:900], 30, 30, normalize=False),
-      show=False,
-      filename='images/4 linear decoder/stl patches.png',
-      interpolation='NEAREST'
-    )
-
-    patches = patches.reshape([100000, 192])
-    patches -= patches.mean(0)
-
-    # ZCA whitening
-    u, U = np.linalg.eig(np.dot(patches.T, patches) / patches.shape[0])
-    zca_whiten = np.dot(U / np.sqrt(u + FLAGS.zca_reg), U.T)
-    zca_patches = np.dot(patches, zca_whiten)
-
-    gbl.plot_image(
-      gbl.get_tile_image(zca_patches[0:900].reshape([900, 8, 8, 3]), 30, 30),
-      show=False,
-      filename='images/4 linear decoder/stl zca whitened patches.png',
-      interpolation='NEAREST'
-    )
 
     rng = np.arange(zca_patches.shape[0])
     start, end = 0, FLAGS.batch_size
@@ -92,7 +92,7 @@ def main(_):
         gbl.plot_image(
           gbl.get_tile_image(w_, 20, 20),
           show=False,
-          filename='images/4 linear decoder/anim/stl filters-{0}.png'.format(step),
+          filename='images/4 Linear Decoder/anim/stl filters-{0}.png'.format(step),
           interpolation='NEAREST'
         )
 
@@ -102,7 +102,7 @@ def main(_):
     gbl.plot_image(
       gbl.get_tile_image(w_, 20, 20),
       show=False,
-      filename='images/4 linear decoder/stl filters.png',
+      filename='images/4 Linear Decoder/stl filters.png',
       interpolation='NEAREST'
     )
 
