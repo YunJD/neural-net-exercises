@@ -1,21 +1,24 @@
 import tensorflow as tf
 import numpy as np
 
-class StochasticGradientDescentState:
-  def __init__(self, total_size, batch_size):
-    self.rng = np.arange(total_size)
-    self.batch_size = batch_size
-    self.start, self.end = 0, batch_size
+def stochastic_batch(data, batch_size):
+  is_multi = isinstance(data, (list, tuple, set))
+  total_size = len(data[0]) if is_multi else len(data)
 
-  def get_next_batch(self, data):
-    batch = data[
-      self.rng[self.start:self.end]
-    ]
-    self.start += self.batch_size
-    self.end += self.batch_size
+  if batch_size > total_size:
+    while True:
+      yield data
 
-    if self.start >= len(self.rng):
-      self.start, self.end = 0, self.batch_size
-      np.random.shuffle(self.rng)
+  start, end = 0, batch_size
+  rng = np.arange(total_size)
 
-    return batch
+  while True:
+    batch = tuple(x[rng[start:end]] for x in data) if is_multi else data[rng[start:end]]
+    yield batch
+
+    start += batch_size
+    end += batch_size
+
+    if start >= len(data):
+      start, end = 0, batch_size
+      np.random.shuffle(rng)

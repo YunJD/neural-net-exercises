@@ -9,6 +9,7 @@ def autoencoder(in_placeholder, n_layers, is_linear=True):
 
   layers = [in_placeholder]
   weight_layers = []
+  bias_layers = []
 
   rng_range = 6. / np.sqrt(np.sum(n_layers[1:]) + 1.)
 
@@ -22,23 +23,22 @@ def autoencoder(in_placeholder, n_layers, is_linear=True):
         name='weights'
       )
 
-      # Needed for optional weight decay
-      weight_layers.append(weights)
-
       biases = tf.Variable(tf.zeros((n_layers[i + 1],)), name='biases')
 
-      if i == len(n_layers) - 2 and is_linear:
-        layers.append(tf.matmul(layers[-1], weights) + biases)
-      else:
-        layers.append(
-          tf.nn.sigmoid(tf.matmul(layers[-1], weights) + biases)
-        )
+      weight_layers.append(weights)
+      bias_layers.append(biases)
 
-  return layers, weight_layers
+      z = tf.matmul(layers[-1], weights) + biases
+      layers.append(z if is_linear and i == len(n_layers) - 2 else tf.nn.sigmoid(z))
 
-def loss(layers, weights, in_placeholder, decay = 1e-4, sparsity_param=0, sparsity_penalty=0):
-  inv_m = 1. / float(int(in_placeholder.get_shape()[0]))
-  l2_loss = tf.nn.l2_loss(layers[-1] - in_placeholder) * inv_m
+  return layers, weight_layers, bias_layers
+
+def loss(layers, weights, in_placeholder, batch_size, decay = 1e-4, sparsity_param=0, sparsity_penalty=0, is_linear=True):
+  inv_m = 1. / batch_size
+  loss = (
+    tf.nn.l2_loss(layers[-1] - in_placeholder) if is_linear\
+      else tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(layers[-1], in_placeholder))
+  ) * inv_m
 
   weight_decays = tf.nn.l2_loss(weights[0])
   for i in range(1, len(weights)):
@@ -46,19 +46,24 @@ def loss(layers, weights, in_placeholder, decay = 1e-4, sparsity_param=0, sparsi
 
   reg_loss = decay * weight_decays
 
-  loss = l2_loss + reg_loss
+  loss += reg_loss
 
   if sparsity_param and sparsity_penalty:
+    sparsity_term = None
     for i in range(1, len(layers) - 1):
       p_hat = tf.reduce_mean(layers[i], 0)
       p = sparsity_param
       kl = tf.reduce_sum(p * tf.log(p / p_hat) + (1. - p) * tf.log((1. - p) / (1. - p_hat)))
-      sparsity_term = sparsity_penalty * kl
+
+      if sparsity_term is None:
+        sparsity_term = sparsity_penalty * kl
+      else:
+        sparsity_term += sparsity_penalty * kl
 
     loss += sparsity_term
     return loss, reg_loss, sparsity_term
 
-  return loss, reg_loss
+  return loss, reg_loss, 0
 
 def training(loss):
   optimizer = tf.train.AdamOptimizer()

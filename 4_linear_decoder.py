@@ -6,7 +6,7 @@ import numpy as np
 import gbl
 import tensorflow as tf
 from datetime import datetime
-from stochastic import StochasticGradientDescentState
+from stochastic import *
 import time
 
 flags = tf.app.flags
@@ -17,7 +17,7 @@ flags.DEFINE_float('decay', 3e-3, 'Decay parameter.')
 flags.DEFINE_float('zca_reg', 0.1, 'Regularization parameter for ZCA whitening.')
 flags.DEFINE_integer('max_steps', 25000, 'Number of training steps to run.')
 flags.DEFINE_integer('hidden', 400, 'Number of hidden units.')
-flags.DEFINE_integer('batch_size', 1000, 'Batch size for stochastic gradient descent.')
+flags.DEFINE_integer('batch_size', 200, 'Batch size for stochastic gradient descent.')
 
 def main(_):
   # Data loading and processing
@@ -48,16 +48,14 @@ def main(_):
     interpolation='NEAREST'
   )
 
-  desc_state = StochasticGradientDescentState(len(zca_patches), FLAGS.batch_size)
-
   with tf.Graph().as_default():
     # Tensorflow model
-    train_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, 192)) # 192 = 8 * 8 * 3
-    layers, weights = sa.autoencoder(train_placeholder, [FLAGS.hidden])
+    train_placeholder = tf.placeholder(tf.float32, shape=(None, 192)) # 192 = 8 * 8 * 3
+    layers, weights, biases = sa.autoencoder(train_placeholder, [FLAGS.hidden])
     weights_op = weights[0]
 
     # Tensorflow Loss function
-    loss, reg_loss, sparsity_loss = sa.loss(layers, weights, train_placeholder, FLAGS.decay, FLAGS.sparse_param, FLAGS.sparse_pen)
+    loss, reg_loss, sparsity_loss = sa.loss(layers, weights, train_placeholder, FLAGS.batch_size, FLAGS.decay, FLAGS.sparse_param, FLAGS.sparse_pen)
 
     # Tensorflow Training
     train_op = sa.training(loss)
@@ -70,15 +68,13 @@ def main(_):
 
     sess.run(init)
 
-    rng = np.arange(zca_patches.shape[0])
-    start, end = 0, FLAGS.batch_size
-
-
     print(datetime.now(), "Begin training...")
     start_time = time.time()
+
+    batches = stochastic_batch(zca_patches, FLAGS.batch_size)
     for step in range(FLAGS.max_steps):
       _, loss_value = sess.run([train_op, loss], feed_dict={
-        train_placeholder: desc_state.get_next_batch(zca_patches)
+        train_placeholder: next(batches)
       })
 
       if step % 50 == 0:
