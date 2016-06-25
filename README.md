@@ -24,3 +24,8 @@ MNIST training files are required under the `./res/` directory.  They can be dow
 http://yann.lecun.com/exdb/mnist/
 
 Various .mat files found in the /res folder were downloaded from the *older* site.
+
+Visualizations
+==============
+
+Visualizations by assignment can be found [here](https://bitbucket.org/yjd/neural-net-exercises/src/master/vis/).
