@@ -89,7 +89,7 @@ def main(_):
     gbl.plot_image(
       gbl.get_tile_image(w_, n_tiles, n_tiles),
       show=False,
-      filename="images/5 Self Taught Learning/filters.png",
+      filename="vis/5 Self Taught Learning/filters.png",
       cmap="Greys_r"
     )
 

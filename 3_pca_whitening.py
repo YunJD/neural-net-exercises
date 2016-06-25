@@ -18,7 +18,7 @@ imgs = imgs.swapaxes(0, 2).swapaxes(1, 2)
 #Show the images
 gbl.plot_image(
   gbl.get_tile_image(imgs, 3, 4),
-  filename='images/3 PCA/1 - Raw Natural Images.png',
+  filename='vis/3 PCA/1 - Raw Natural Images.png',
   cmap=cm.gray,
   interpolation='NEAREST'
 )
@@ -33,7 +33,7 @@ random_patches = np.random.randint(0, patches.shape[0], 100)
 
 gbl.plot_image(
   gbl.get_tile_image(patches.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
-  filename='images/3 PCA/2 - Randomly Sampled Patches.png',
+  filename='vis/3 PCA/2 - Randomly Sampled Patches.png',
   cmap=cm.gray,
   interpolation='NEAREST'
 )
@@ -45,7 +45,7 @@ rot = np.dot(patches, U)
 
 #Save the cov matrix of xrot
 plt.imshow((np.dot(rot.T, rot) / 10000), interpolation='NEAREST')
-plt.savefig('images/3 PCA/3 - Covariance Matrix.svg', bbox_inches='tight')
+plt.savefig('vis/3 PCA/3 - Covariance Matrix.svg', bbox_inches='tight')
 #This sorts from smallest to largest
 idx = u.argsort()
 
@@ -73,20 +73,20 @@ rot_white = rot / np.sqrt(u)
 rot_white_reg = rot / (np.sqrt(u + 0.1))
 
 plt.imshow(np.dot(rot_white.T, rot_white) / 10000, interpolation='NEAREST')
-plt.savefig('images/3 PCA/4 - Covariance Matrix Whitened.svg', bbox_inches='tight')
+plt.savefig('vis/3 PCA/4 - Covariance Matrix Whitened.svg', bbox_inches='tight')
 plt.imshow(np.dot(rot_white_reg.T, rot_white_reg) / 10000, interpolation='NEAREST')
-plt.savefig('images/3 PCA/5 - Covariance Matrix Whitened Regularized.svg', bbox_inches='tight')
+plt.savefig('vis/3 PCA/5 - Covariance Matrix Whitened Regularized.svg', bbox_inches='tight')
 
 gbl.plot_image(
   gbl.get_tile_image(pca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
-  filename='images/3 PCA/6 - PCA 90 Variance.png',
+  filename='vis/3 PCA/6 - PCA 90 Variance.png',
   cmap=cm.gray,
   interpolation='NEAREST'
 )
 
 gbl.plot_image(
   gbl.get_tile_image(pca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
-  filename='images/3 PCA/7 - PCA 99 Variance.png',
+  filename='vis/3 PCA/7 - PCA 99 Variance.png',
   cmap=cm.gray,
   interpolation='NEAREST'
 )
@@ -100,14 +100,14 @@ rot_white_reg_zca_99 = np.dot(rot_white_reg_pca_99, U.T)
 
 gbl.plot_image(
   gbl.get_tile_image(rot_white_reg_zca_90.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
-  filename='images/3 PCA/8 - ZCA 90 Variance.png',
+  filename='vis/3 PCA/8 - ZCA 90 Variance.png',
   cmap=cm.gray,
   interpolation='NEAREST'
 )
 
 gbl.plot_image(
   gbl.get_tile_image(rot_white_reg_zca_99.reshape([10000, patch_size, patch_size])[random_patches], 10, 10),
-  filename='images/3 PCA/9 - ZCA 99 Variance.png',
+  filename='vis/3 PCA/9 - ZCA 99 Variance.png',
   cmap=cm.gray,
   interpolation='NEAREST'
 )

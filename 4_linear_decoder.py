@@ -30,7 +30,7 @@ def main(_):
   gbl.plot_image(
     gbl.get_tile_image(patches[0:900], 30, 30, normalize=False),
     show=False,
-    filename='images/4 Linear Decoder/stl patches.png',
+    filename='vis/4 Linear Decoder/stl patches.png',
     interpolation='NEAREST'
   )
 
@@ -45,7 +45,7 @@ def main(_):
   gbl.plot_image(
     gbl.get_tile_image(zca_patches[0:900].reshape([900, 8, 8, 3]), 30, 30),
     show=False,
-    filename='images/4 Linear Decoder/stl zca whitened patches.png',
+    filename='vis/4 Linear Decoder/stl zca whitened patches.png',
     interpolation='NEAREST'
   )
 
@@ -87,7 +87,7 @@ def main(_):
         gbl.plot_image(
           gbl.get_tile_image(w_, 20, 20),
           show=False,
-          filename='images/4 Linear Decoder/anim/stl filters-{0}.png'.format(step),
+          filename='vis/4 Linear Decoder/anim/stl filters-{0}.png'.format(step),
           interpolation='NEAREST'
         )
 
@@ -97,7 +97,7 @@ def main(_):
     gbl.plot_image(
       gbl.get_tile_image(w_, 20, 20),
       show=False,
-      filename='images/4 Linear Decoder/stl filters.png',
+      filename='vis/4 Linear Decoder/stl filters.png',
       interpolation='NEAREST'
     )
 

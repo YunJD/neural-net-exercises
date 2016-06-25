@@ -105,7 +105,7 @@ def main(_):
     gbl.plot_image(
       gbl.get_tile_image(w_, n_tiles, n_tiles),
       show=False,
-      filename="images/6 Stacked Autoencoder/filters.png",
+      filename="vis/6 Stacked Autoencoder/filters.png",
       cmap="Greys_r"
     )
 
@@ -171,7 +171,7 @@ def main(_):
     gbl.plot_image(
       gbl.get_tile_image(w_, n_tiles, n_tiles),
       show=False,
-      filename="images/6 Stacked Autoencoder/fine tune filters.png",
+      filename="vis/6 Stacked Autoencoder/fine tune filters.png",
       cmap="Greys_r"
     )
 

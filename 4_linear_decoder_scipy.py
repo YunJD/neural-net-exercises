@@ -29,7 +29,7 @@ patches = loadmat('res/stlSampledPatches.mat', mat_dtype=True)['patches']\
 
 gbl.plot_image(
   gbl.get_tile_image(patches[0:400], 20, 20, normalize=False),
-  filename='images/4 linear decoder/stl patches.png',
+  filename='vis/4 linear decoder/stl patches.png',
   interpolation='NEAREST'
 )
 
@@ -42,7 +42,7 @@ zca_patches = np.dot(patches, zca_whiten)
 
 gbl.plot_image(
   gbl.get_tile_image(zca_patches[0:400].reshape([400, 8, 8, 3]), 20, 20),
-  filename='images/4 linear decoder/stl zca whitened patches.png',
+  filename='vis/4 linear decoder/stl zca whitened patches.png',
   interpolation='NEAREST'
 )
 ################################################################################
@@ -53,6 +53,6 @@ nn.optimize(zca_patches, zca_patches, 50)
 w_ = nn.w[0].T.reshape(HIDDEN, 8, 8, 3)
 gbl.plot_image(
   gbl.get_tile_image(w_, 20, 20),
-  filename='images/4 linear decoder/stl filters.png',
+  filename='vis/4 linear decoder/stl filters.png',
   interpolation='NEAREST'
 )

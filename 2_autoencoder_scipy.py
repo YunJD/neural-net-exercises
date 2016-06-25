@@ -33,6 +33,6 @@ hidden_w = nn.w[0].T
 
 gbl.plot_image(
   gbl.get_tile_image(hidden_w.reshape(s2 * s2, p_w, p_h), s2, s2),
-  filename="images/2 Sparse Autoencoder/filters.png",
+  filename="vis/2 Sparse Autoencoder/filters.png",
   cmap="Greys_r"
 )
