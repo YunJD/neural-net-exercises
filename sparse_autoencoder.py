@@ -1,72 +1,34 @@
 import numpy as np
 import tensorflow as tf
+import nn
 
-def autoencoder(in_placeholder, n_layers, is_linear=True):
-  in_shape = in_placeholder.get_shape()
-  n_in = in_shape[-1]
+def get_ae_stack(n_in, n_hidden, decay, p, b, is_linear=False):
+  x = tf.placeholder(tf.float32, shape=(None, n_in))
+  wh, bh, _, ah = nn.feed_forward(x, n_hidden)
+  wo, bo, _, ao = nn.feed_forward(ah, n_in, is_linear)
 
-  n_layers = [int(n_in)] + n_layers + [int(n_in)]
+  loss = nn.square_error_loss(ao, x)\
+    + nn.weight_decay(decay, wh, wo)\
+    + nn.sparsity(ah, p, b)
 
-  layers = [in_placeholder]
-  weight_layers = []
-  bias_layers = []
+  # What's really needed by other functions
+  return x, wh, bh, ah, loss
 
-  rng_range = 6. / np.sqrt(np.sum(n_layers[1:]) + 1.)
+def fully_connect_sigmoid(x, *layers):
+  a = x
 
-  for i in range(len(n_layers) - 1):
-    with tf.name_scope('layer' + str(i)):
-      weights = tf.Variable(
-        tf.random_uniform(
-          [n_layers[i], n_layers[i + 1]],
-          -rng_range, rng_range
-        ),
-        name='weights'
-      )
+  for i in range(0, len(layers)):
+    w, b = layers[i]
+    z = tf.matmul(a, w) + b
+    a = tf.sigmoid(z)
 
-      biases = tf.Variable(tf.zeros((n_layers[i + 1],)), name='biases')
+  return a
 
-      weight_layers.append(weights)
-      bias_layers.append(biases)
+def fully_connect_sigmoid_softmax(x, *layers):
+  a = fully_connect_sigmoid(x, *layers[:-1])
+  w, b = layers[-1]
 
-      z = tf.matmul(layers[-1], weights) + biases
-      layers.append(z if is_linear and i == len(n_layers) - 2 else tf.nn.sigmoid(z))
+  z = tf.matmul(a, w) + b
+  a = tf.nn.softmax(z)
 
-  return layers, weight_layers, bias_layers
-
-def loss(layers, weights, in_placeholder, batch_size, decay = 1e-4, sparsity_param=0, sparsity_penalty=0, is_linear=True):
-  inv_m = 1. / batch_size
-  loss = (
-    tf.nn.l2_loss(layers[-1] - in_placeholder) if is_linear\
-      else tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(layers[-1], in_placeholder))
-  ) * inv_m
-
-  weight_decays = tf.nn.l2_loss(weights[0])
-  for i in range(1, len(weights)):
-    weight_decays += tf.nn.l2_loss(weights[i])
-
-  reg_loss = decay * weight_decays
-
-  loss += reg_loss
-
-  if sparsity_param and sparsity_penalty:
-    sparsity_term = None
-    for i in range(1, len(layers) - 1):
-      p_hat = tf.reduce_mean(layers[i], 0)
-      p = sparsity_param
-      kl = tf.reduce_sum(p * tf.log(p / p_hat) + (1. - p) * tf.log((1. - p) / (1. - p_hat)))
-
-      if sparsity_term is None:
-        sparsity_term = sparsity_penalty * kl
-      else:
-        sparsity_term += sparsity_penalty * kl
-
-    loss += sparsity_term
-    return loss, reg_loss, sparsity_term
-
-  return loss, reg_loss, 0
-
-def training(loss):
-  optimizer = tf.train.AdamOptimizer()
-  train_op = optimizer.minimize(loss)
-
-  return train_op
+  return a

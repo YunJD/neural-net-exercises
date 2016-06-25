@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from scipy.io import loadmat
+import nn
 import sparse_autoencoder as sa
 import mnist
 import numpy as np
@@ -17,7 +18,7 @@ flags.DEFINE_float('sparse_pen', 3, 'Sparsity penalty.')
 flags.DEFINE_float('decay', 3e-3, 'Decay parameter.')
 flags.DEFINE_integer('max_steps', 20000, 'Number of training steps to run.')
 flags.DEFINE_integer('hidden', 200, 'Number of hidden units.')
-flags.DEFINE_integer('batch_size', 1000, 'Batch size for stochastic gradient descent.')
+flags.DEFINE_integer('batch_size', 400, 'Batch size for stochastic gradient descent.')
 flags.DEFINE_integer('max_steps_sm', 14000, 'Number of training steps for the softmax layer.')
 
 def main(_):
@@ -42,21 +43,14 @@ def main(_):
 
   with tf.Graph().as_default():
     # Autoencoder model
-    x = tf.placeholder(tf.float32, shape=(None, width * height))
+    x, w1, b1, a1, loss = sa.get_ae_stack(width * height, FLAGS.hidden, FLAGS.decay, FLAGS.sparse_param, FLAGS.sparse_pen)
 
-    layers, weights, biases = sa.autoencoder(x, [FLAGS.hidden], False)
-    weights_op = weights[0]
-
-    # Autoencoder Loss function
-    loss, reg_loss, sparsity_loss = sa.loss(layers, weights, x, FLAGS.batch_size, FLAGS.decay, FLAGS.sparse_param, FLAGS.sparse_pen, False)
-
-    train_op = sa.training(loss)
+    train_op = tf.train.AdamOptimizer().minimize(loss)
 
     # Softmax model
     encoded_x = tf.placeholder(tf.float32, shape=(None, FLAGS.hidden))
     y = tf.placeholder(tf.float32, shape=(None, 10))
     y_ = tf.placeholder(tf.float32, shape=(len(test_labels), 10))
-
 
     sm_w, sm_b = tf.Variable(tf.zeros((FLAGS.hidden, 10))), tf.Variable(tf.zeros((10,)))
     softmax = tf.nn.softmax(tf.matmul(encoded_x, sm_w) + sm_b)
@@ -91,7 +85,7 @@ def main(_):
     print(datetime.now(), "Training completed! Elapsed:", time.time() - start_time, '\n')
 
     n_tiles = int(np.ceil(np.sqrt(FLAGS.hidden)))
-    w_ = sess.run(weights_op).T.reshape(FLAGS.hidden, height, width)
+    w_ = sess.run(w1).T.reshape(FLAGS.hidden, height, width)
     gbl.plot_image(
       gbl.get_tile_image(w_, n_tiles, n_tiles),
       show=False,
@@ -99,19 +93,13 @@ def main(_):
       cmap="Greys_r"
     )
 
-    encoded_images = sess.run(
-      layers[1],
-      feed_dict={
-        x: labeled_images
-      }
-    )
+    encoded_images = sess.run(a1, feed_dict={
+      x: labeled_images
+    })
 
-    encoded_test_images = sess.run(
-      layers[1],
-      feed_dict={
-        x: test_images
-      }
-    )
+    encoded_test_images = sess.run(a1, feed_dict={
+      x: test_images
+    })
 
     # Train softmax classifier
     print(datetime.now(), 'Training softmax layer starts...')

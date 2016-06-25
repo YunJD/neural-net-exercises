@@ -2,6 +2,7 @@
 
 from scipy.io import loadmat
 import sparse_autoencoder as sa
+import nn
 import numpy as np
 import gbl
 import tensorflow as tf
@@ -50,15 +51,17 @@ def main(_):
 
   with tf.Graph().as_default():
     # Tensorflow model
-    train_placeholder = tf.placeholder(tf.float32, shape=(None, 192)) # 192 = 8 * 8 * 3
-    layers, weights, biases = sa.autoencoder(train_placeholder, [FLAGS.hidden])
-    weights_op = weights[0]
+    x = tf.placeholder(tf.float32, shape=(None, 192))
+    w1, b1, z1, a1 = nn.feed_forward(x, FLAGS.hidden)
+    w2, b2, z2, a2 = nn.feed_forward(a1, 192, True)
 
-    # Tensorflow Loss function
-    loss, reg_loss, sparsity_loss = sa.loss(layers, weights, train_placeholder, FLAGS.batch_size, FLAGS.decay, FLAGS.sparse_param, FLAGS.sparse_pen)
+    # Autoencoder loss function
+    loss = nn.square_error_loss(a2, x)\
+      + nn.weight_decay(FLAGS.decay, w1, w2)\
+      + nn.sparsity(a1, FLAGS.sparse_param, FLAGS.sparse_pen)
 
     # Tensorflow Training
-    train_op = sa.training(loss)
+    train_op = tf.train.AdamOptimizer().minimize(loss)
 
     init = tf.initialize_all_variables()
 
@@ -74,13 +77,13 @@ def main(_):
     batches = stochastic_batch(zca_patches, FLAGS.batch_size)
     for step in range(FLAGS.max_steps):
       _, loss_value = sess.run([train_op, loss], feed_dict={
-        train_placeholder: next(batches)
+        x: next(batches)
       })
 
       if step % 50 == 0:
         print('Steps', step, 'Loss', loss_value, 'Elapsed', time.time() - start_time)
 
-        w_ = sess.run(weights_op).T.reshape(FLAGS.hidden, 8, 8, 3)
+        w_ = sess.run(w1).T.reshape(FLAGS.hidden, 8, 8, 3)
         gbl.plot_image(
           gbl.get_tile_image(w_, 20, 20),
           show=False,
@@ -90,7 +93,7 @@ def main(_):
 
     print(datetime.now(), "Training complete! Elapsed:", time.time() - start_time)
 
-    w_ = sess.run(weights_op).T.reshape(FLAGS.hidden, 8, 8, 3)
+    w_ = sess.run(w1).T.reshape(FLAGS.hidden, 8, 8, 3)
     gbl.plot_image(
       gbl.get_tile_image(w_, 20, 20),
       show=False,
