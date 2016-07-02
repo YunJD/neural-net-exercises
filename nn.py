@@ -8,7 +8,7 @@ def feed_forward(prev_layer, n, is_linear=False, dev=None):
     prev_layer (tensorflow.Tensor): Previous activation/input layer.
     n (integer): Number of nodes.
     is_linear (boolean = False): Activation is the same as z.
-    dev (float = 6. / np.sqrt(n_prev_layer + n + 1.)): Min/max range for randomized weights.
+    dev (float = np.sqrt(6. / (n_prev_layer + n + 1.)): Min/max range for randomized weights.
 
   Returns:
     (tuple): Tuple containing:
@@ -19,7 +19,7 @@ def feed_forward(prev_layer, n, is_linear=False, dev=None):
   '''
   n_prev = int(prev_layer.get_shape()[-1])
 
-  dev = dev or 6. / np.sqrt(n_prev + n + 1)
+  dev = dev or np.sqrt(6. / (n_prev + n + 1))
 
   w = tf.Variable(tf.random_uniform((n_prev, n), -dev, dev))
   b = tf.Variable(tf.zeros((n,)))
