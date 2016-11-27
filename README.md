@@ -1,6 +1,14 @@
 Neural Net Exercises
 ==============
 
+Visualizations
+==============
+
+Visualizations by assignment can be found [here](https://bitbucket.org/yjd/neural-net-exercises/src/master/vis/).
+
+Description
+===========
+
 Solutions to select exercises from Stanford's Unsupervised Feature Learning and Deep Learning (UFLDL) Tutorial, starting with neural networks. Written in Python using Numpy, SciPy, and Tensorflow.  SciPy & Numpy solutions are denoted with *\_scipy*.
 
 ## UfLDL Tutorial Sites
@@ -24,8 +32,3 @@ MNIST training files are required under the `./res/` directory.  They can be dow
 http://yann.lecun.com/exdb/mnist/
 
 Various .mat files found in the /res folder were downloaded from the *older* site.
-
-Visualizations
-==============
-
-Visualizations by assignment can be found [here](https://bitbucket.org/yjd/neural-net-exercises/src/master/vis/).
