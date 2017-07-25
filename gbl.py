@@ -1,16 +1,28 @@
+import os
+from six.moves import cPickle as pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 __all__ = ['show_tiles']
 
-'''Image loading/display helper functions'''
+def load_cifar10(path):
+    data = [load_cifar_batch(os.path.join(path, 'data_batch_{}'.format(i))) for i in range(1, 6)]
+    xs, ys = tuple(zip(*data))
+    return np.concatenate(xs), np.concatenate(ys)
 
-#Return ndarray of (width, height) from PIL image
+def load_cifar_batch(filename):
+    with open(filename, 'rb') as f:
+        datadict = pickle.load(f, encoding='latin1')
+        X = datadict['data']
+        Y = datadict['labels']
+        # Transpose moves the color channel to the highest dimension
+        X = X.reshape(10000, 3, 32, 32).transpose(0,2,3,1).astype('float')
+        Y = np.array(Y)
+        return X, Y
+
 def pil2ndarray(img):
   '''Given an image loaded by Pillow, returns an ndarray of intensity values.
-
-  Args:
-    img (PIL.Image): Image loaded by PIL.Image.open()
+Args: img (PIL.Image): Image loaded by PIL.Image.open()
 
   Returns:
     (numpy array): A numpy array with intensity values taken from the PIL image
